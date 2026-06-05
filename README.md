@@ -1,17 +1,19 @@
-# Contribution [#]: [Issue Title]
+# Contribution 73: MCP Tool: project_list
 
-**Contribution Number:** [1 / 2 / 3]  
-**Student:** [Your Name]  
-**Issue:** [GitHub issue link]  
-**Status:** [Phase I / Phase II / Phase III / Phase IV] [In Progress / Complete]
+**Contribution Number:** 74
+
+**Student:** Luis C. Martinez
+
+**Issue:** https://github.com/orthogonalhq/nous-core/issues/73
+
+**Status:** Phase I Complete
 
 ---
 
 ## Why I Chose This Issue
 
-[1-2 paragraphs explaining why this issue interests you, how it matches your skills/learning goals, what you hope to learn]
+I chose this issue because it is a clear, bounded way to contribute to an AI-agent codebase. It is also a good opportunity to learn what MCP tools are, how they connect to existing project data, and how this project is organized.
 
----
 
 ## Understanding the Issue
 
