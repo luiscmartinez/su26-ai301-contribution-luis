@@ -1,10 +1,10 @@
-# Contribution 73: MCP Tool: project_list
+# Contribution 86: Add a Discord webhook notifier for delivery milestones (alongside Telegram)
 
-**Contribution Number:** 74
+**Contribution Number:** 86
 
 **Student:** Luis C. Martinez
 
-**Issue:** https://github.com/orthogonalhq/nous-core/issues/73
+**Issue:** https://github.com/cesarnml/son-of-anton/issues/86#issue
 
 **Status:** Phase I Complete
 
@@ -12,8 +12,9 @@
 
 ## Why I Chose This Issue
 
-I chose this issue because it is a clear, bounded way to contribute to an AI-agent codebase. It is also a good opportunity to learn what MCP tools are, how they connect to existing project data, and how this project is organized.
+I chose this issue because it is well-scoped, and it involves technologies that I currently use as an actual user like Discord. I want to try to use this tool in my personal development workflows.
 
+---
 
 ## Understanding the Issue
 
