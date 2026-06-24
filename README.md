@@ -92,7 +92,7 @@ Using framework (adapted):
 **Understand:** The Problem
 There currently is no Discord feature.
 
-**Match:**
+Match:
 The existing Telegram notifier provides the closest pattern in the codebase. I will use it to understand:
 
 How notifier configuration is resolved
@@ -100,26 +100,26 @@ How notification events are converted into messages
 How best-effort notification failures are handled
 How tests currently verify notification behavior
 
-The Discord notifier should follow the same general shape, but it should use Discord’s webhook API and Markdown-style links instead of Telegram entities.
+The Discord notifier should follow the same general shape, but it should use Discord's webhook API and Markdown-style links instead of Telegram entities. Following option (b), I will also adjust where the message is built so the links come out as structured data that both platforms can format.
 
-**Plan:** [Step-by-step implementation plan]
+Plan: [Step-by-step implementation plan]
 Modify tools/delivery/notifications.ts.
-Extend the DeliveryNotifier type with a Discord option.
-Update resolveNotifier() to return a Discord notifier when DISCORD_WEBHOOK_URL is configured.
-Add a sendDiscordMessage() function that sends:
+Extend the DeliveryNotifier type with a Discord option that carries the webhook URL.
+Update resolveNotifier() to return a Discord notifier when DISCORD_WEBHOOK_URL is configured, and document the precedence when both Telegram and Discord vars are set (simplest: Telegram wins).
+Refactor message building so links are carried as structured data instead of being baked into a Telegram-only format (option b). The payload keeps the message text plus a list of links (label + url) that hasn't been formatted for any one platform yet.
+Update the Telegram path so it builds its text + entities from that structured data, exactly matching current Telegram behavior so nothing regresses.
+Add a sendDiscordMessage() function that formats the same structured links into Markdown and sends:
 {
   "content": "..."
 }
-
 to the configured webhook URL.
 
 Update notifyBestEffort() to call the correct sending function based on notifier.kind.
-Refactor message formatting so links can be represented in a platform-neutral way before being formatted for Telegram or Discord.
 Add tests for:
 Discord notifier resolution
-Discord webhook payload format
-Best-effort failure handling
-Existing Telegram behavior, to ensure it does not regress
+Discord webhook payload format (the structured links render as Markdown [label](url) in content)
+Best-effort failure handling (a mocked fetch failure becomes a warning, never a throw)
+Existing Telegram behavior, to ensure it does not regress (entities still build correctly from the structured links)
 Update .env.example with:
 DISCORD_WEBHOOK_URL=
 Update documentation to explain how to configure Discord notifications.
@@ -127,22 +127,23 @@ Run the project checks:
 bun run format
 bun run ci
 
-**Implement:** 
+Implement: 
 
 Branch: https://github.com/luiscmartinez/son-of-anton/tree/fix-issue-86-discord-webhook
 Commits: 
 Pull Request:
 
-**Review:** [Self-review checklist - does it follow the project's contribution guidelines?]
+Review: [Self-review checklist - does it follow the project's contribution guidelines?]
 Discord notifier follows the same style as the existing Telegram notifier.
-Telegram behavior still works.
-Discord webhook requests use the correct JSON payload.
+Message wording is built once and shared by both platforms (option b), so nothing is duplicated.
+Telegram behavior still works (entities rebuilt from the structured links, no regression).
+Discord webhook requests use the correct JSON payload with Markdown links.
 Notification failures remain best-effort and do not crash the delivery process.
-Tests cover the new Discord behavior.
+Tests cover the new Discord behavior and the Telegram regression.
 Documentation and .env.example are updated.
 Formatting and CI pass.
 
-**Evaluate:** [How will you verify it works?]
+Evaluate: [How will you verify it works?]
 I will verify the solution in three ways:
 
 Automated tests
@@ -157,12 +158,11 @@ Configure:
 
 DISCORD_WEBHOOK_URL=...
 
-Then trigger a test notification and confirm that the message appears in the Discord channel.
+Then trigger a test notification and confirm that the message appears in the Discord channel with a working Markdown link.
 
 Regression check
 
 Re-run the Telegram smoke test to confirm that the existing Telegram notifier still works after adding Discord support.
-
 ---
 
 ## Testing Strategy
