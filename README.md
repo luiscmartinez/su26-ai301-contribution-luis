@@ -210,7 +210,7 @@ curl -X POST -H "Content-Type: application/json" \
 
 ## Pull Request
 
-**PR Link:** [GitHub PR URL when submitted]
+**PR Link:**  https://github.com/cesarnml/son-of-anton/pull/104
 
 **PR Description:** [Draft or final PR description - much of the content above can be adapted]
 
