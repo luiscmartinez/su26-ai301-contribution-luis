@@ -6,7 +6,7 @@
 
 **Issue:** https://github.com/cesarnml/son-of-anton/issues/86#issue
 
-**Status:** Phase II Complete
+**Status:** Phase III Complete
 
 ---
 
@@ -169,18 +169,24 @@ Re-run the Telegram smoke test to confirm that the existing Telegram notifier st
 
 ### Unit Tests
 
-- [ ] Test case 1: [Description]
-- [ ] Test case 2: [Description]
-- [ ] Test case 3: [Description]
+- [x] Test case 1: `resolveNotifier` resolution — returns the `discord` notifier when `DISCORD_WEBHOOK_URL` is set, `noop` when nothing is configured, and a whitespace-only webhook resolves to `noop` (exercises the `.trim()` guard).
+- [x] Test case 2: Precedence — when both `TELEGRAM_BOT_TOKEN`/`TELEGRAM_CHAT_ID` and `DISCORD_WEBHOOK_URL` are set, Telegram wins and Discord is ignored.
+- [x] Test case 3: `buildDiscordContent` formatting — splices `text_link` entities into Markdown `[label](url)` left-to-right (offset-stable across multiple entities), escapes inline Markdown (`` \ ` * _ ~ | ``) and line-start block markers (`#`, `>`, `-`/`+`, `N.`) so free-form text renders literally, and skips out-of-range ent
 
 ### Integration Tests
 
-- [ ] Integration scenario 1
-- [ ] Integration scenario 2
+- [x] Integration scenario 1: Full `notifyBestEffort` → `sendDiscordMessage` path with a mocked `fetch` — asserts the exact POST body (`content`, `flags: 4`, `allowed_mentions: { parse: [] }`) for a standalone review event (Markdown PR link) and a ticketed event (bare auto-linked URL), confirming only standalone events get a `[PR #N](url)` link.
+- [x] Integration scenario 2: Best-effort failure handling — a mocked non-2xx Discord response is swallowed into a `"Notification warning: Discord webhook failed with 500"` string and never throws or aborts delivery. The two pre-existing Telegram tests were also hardened to isolate `DISCORD_WEBHOOK_URL` (no cross-test env leakage).
 
 ### Manual Testing
 
-[What you tested manually and results]
+Automated: `bun run format` then `bun run ci` pass locally — **628 tests / 0 failures**. The Discord HTTP layer is covered via a mocked `globalThis.fetch`, asserting the literal request payload rather than hitting Discord.
+
+Not yet done: a live POST to a real Discord webhook. Recommended before/at merge — create a channel webhook and run the issue's smoke test:
+```bash
+curl -X POST -H "Content-Type: application/json" \
+  -d '{"content":"hello from son-of-anton **[the repo](https://github.com/cesarnml/son-of-anton)**"}' \
+  "$DISCORD_WEBHOOK_URL"
 
 ---
 
