@@ -202,23 +202,26 @@ curl -X POST -H "Content-Type: application/json" \
 
 ### Code Changes
 
-- **Files modified:** [List]
-- **Key commits:** [Links to important commits]
-- **Approach decisions:** [Why you chose certain approaches]
-
+- **Files modified:** [docs/template/delivery/delivery-orchestrator.md, tools/delivery/test/orchestrator.test.ts, tools/delivery/notifications.ts]
+- **Key commits:** [https://github.com/cesarnml/son-of-anton/pull/104/changes/d95d8e8287731966956e29888fbd161a4565c2fb]
+- **Approach decisions:** 
+I chose option (c) — render Discord from the existing { text, entities } payload — because it leaves the Telegram path byte-for-byte unchanged (the lowest-risk way to guarantee no regression) while still building the message wording only once. The supporting calls follow from that: Telegram-wins precedence preserves existing users' behavior, and per-line Markdown escaping + allowed_mentions: { parse: [] } + flags: 4 make Discord render free-form text literally and safely, matching Telegram's plain-text output.
 ---
 
 ## Pull Request
 
 **PR Link:**  https://github.com/cesarnml/son-of-anton/pull/104
 
-**PR Description:** [Draft or final PR description - much of the content above can be adapted]
+**PR Description:**
+Adds Discord as a second delivery-milestone notification channel alongside Telegram, implementing #86. The milestone events themselves are unchanged — this only adds a new delivery channel.
+
 
 **Maintainer Feedback:**
+no feedback yet. Below is still template.
 - [Date]: [Summary of feedback received]
 - [Date]: [How you addressed it]
 
-**Status:** [Awaiting review / Iterating / Approved / Merged]
+**Status:** [Awaiting review]
 
 ---
 
@@ -226,7 +229,13 @@ curl -X POST -H "Content-Type: application/json" \
 
 ### Technical Skills Gained
 
-[What you learned technically]
+Discriminated unions in TypeScript — adding a kind: 'discord' variant and letting kind-based narrowing drive safe dispatch in notifyBestEffort.
+Two link models, one payload — Telegram uses offset/length entities over plain text; Discord uses Markdown. Designing one neutral payload that both render from avoids duplicating message wording.
+Markdown escaping nuance — inline markers (* _ ` ~ |) fire anywhere, but block markers (#, >, -, N.) only at line start, so escaping has to be line-aware. And escaping []() causes more harm (visible backslashes) than it fixes.
+Mention safety is a config, not an escape — backslashing @ doesn't stop Discord pings; allowed_mentions: { parse: [] } is the correct guard against accidental @everyone.
+Best-effort side effects — a notification failure must degrade to a warning, never throw or abort the delivery run.
+Test hygiene — asserting exact HTTP payloads via a mocked fetch, and avoiding the process.env.X = undefined → string "undefined" coercion trap when saving/restoring env vars.
+
 
 ### Challenges Overcome
 
@@ -235,7 +244,7 @@ curl -X POST -H "Content-Type: application/json" \
 ### What I'd Do Differently Next Time
 
 [Reflection on your process]
-
+I still need to spend more time with the code. I have rush thru implementation. 
 ---
 
 ## Resources Used
